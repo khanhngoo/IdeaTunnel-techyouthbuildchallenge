@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.15",
     "@codesandbox/sandpack-react": "^2.20.0",
     "@octokit/rest": "^22.0.0",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -20,7 +21,9 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@supabase/supabase-js": "^2.57.4",
     "@types/papaparse": "^5.3.16",
+    "ai": "^5.0.50",
     "class-variance-authority": "^0.7.1",
+    "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "dexie": "^4.2.0",
     "lucide-react": "^0.544.0",

@@ -1,6 +1,6 @@
 'use client';
 
-import Canvas from '@/components/Canvas';
+import Canvas from '@/app/workflow/Canvas';
 
 export default function Home() {
   return (
