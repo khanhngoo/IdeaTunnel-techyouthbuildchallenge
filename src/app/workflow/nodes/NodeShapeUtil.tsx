@@ -43,14 +43,32 @@ export class NodeShapeUtil extends ShapeUtil<NodeShape> {
 		}
 	}
 
+	migrateProps(shape: NodeShape): NodeShape['props'] {
+		// Handle migration for message nodes
+		if (shape.props.node.type === 'message') {
+			const node = shape.props.node as any;
+			return {
+				node: {
+					type: "message",
+					title: node.title !== undefined ? node.title : "New Message",
+					userMessage: node.userMessage || "hello",
+					assistantMessage: node.assistantMessage || "",
+					isExpanded: node.isExpanded !== undefined ? node.isExpanded : false,
+					isEditingTitle: node.isEditingTitle !== undefined ? node.isEditingTitle : false,
+				},
+			};
+		}
+		return shape.props;
+	}
+
 	override canEdit() {
 		return false
 	}
 	override canResize() {
-		return false
+		return true
 	}
 	override hideResizeHandles() {
-		return true
+		return false
 	}
 	override hideRotateHandle() {
 		return true
@@ -98,9 +116,6 @@ export class NodeShapeUtil extends ShapeUtil<NodeShape> {
 		})
 	}
 
-	override onResize(shape: NodeShape, info: TLResizeInfo<NodeShape>) {
-		return resizeBox(shape, info)
-	}
 
 	component(shape: NodeShape) {
 		return <NodeShape shape={shape} />

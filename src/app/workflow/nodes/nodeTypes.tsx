@@ -17,7 +17,7 @@ export function getNodeDefinitions(editor: Editor) {
 	return nodeDefinitions.get(editor, () => {
 		return Object.fromEntries(
 			Object.values(NodeDefinitions).map((value) => [value.type, new value(editor)])
-		) as Record<string, NodeDefinition<unknown>>;
+		) as { [K in keyof typeof NodeDefinitions]: InstanceType<(typeof NodeDefinitions)[K]> };
 	});
 }
 
