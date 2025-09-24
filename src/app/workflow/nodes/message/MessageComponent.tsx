@@ -1,5 +1,7 @@
 import { ModelMessage } from 'ai'
 import { useCallback } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { useEditor } from 'tldraw'
 import { Send } from 'lucide-react'
 import { NodeShape } from '../NodeShapeUtil'
@@ -126,8 +128,10 @@ export function MessageNodeComponent({ node, shape }: NodeComponentProps<Message
 
       {migratedNode.isExpanded && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 16px 80px 16px', minHeight: 0 }}>
-          <div style={{ flex: 1, background: 'transparent', color: '#1a1a1a', fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', overflow: 'auto' }}>
-            {migratedNode.assistantMessage || 'No response yet...'}
+          <div style={{ flex: 1, background: 'transparent', color: '#1a1a1a', fontSize: 14, lineHeight: 1.5, overflow: 'auto' }}>
+            {migratedNode.assistantMessage
+              ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{migratedNode.assistantMessage}</ReactMarkdown>
+              : 'No response yet...'}
           </div>
         </div>
       )}

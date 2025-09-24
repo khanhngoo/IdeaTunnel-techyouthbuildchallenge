@@ -19,7 +19,7 @@
 - **Styling/UI:** Tailwind + shadcn/ui.
 - **Local DB:** Dexie (IndexedDB).
 - **Cloud:** Supabase (Auth, Postgres, Realtime, Storage, **pgvector**). RLS enabled later.
-- **LLM:** OpenAI/Anthropic via Route Handlers. Optional: **n8n** webhooks as an orchestration layer.
+- **LLM:** ai-sdk (`ai`) + `@ai-sdk/google` (Gemini 2.5). Optional: SDK chính thức `@google/generative-ai` khi cần giữ nguyên schema Gemini. Optional: **n8n** webhooks as an orchestration layer.
 - **Exports:** Octokit (GitHub REST) or File System Access API (Chromium) for local writes.
 - **Preview:** Sandpack for UI/UX artifacts.
 - **Simulation:** Local mock engine; optional Mockoon/Mocki. If docs unclear, keep local mocks.
@@ -34,8 +34,16 @@
 src/
   app/
     page.tsx
+    workflow/
+      Canvas.tsx
+      components/
+      connection/
+      nodes/
+      ports/
   api/
-    llm/
+    stream/route.ts       # ai-sdk + Gemini (stream)
+    generate/route.ts     # ai-sdk + Gemini (non-stream)
+    llm/                  # planned endpoints per PRD
       fanout/route.ts
       subchat/route.ts
       rewrite/route.ts
@@ -72,6 +80,7 @@ src/
 -
 
 ```
+GOOGLE_GENERATIVE_AI_API_KEY=
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 NEXT_PUBLIC_SUPABASE_URL=
@@ -177,7 +186,11 @@ export const useBoard = create<State & Actions>(() => ({ /* TODO: impl */ }));
 
 ## 7) Canvas UI (`tldraw`)
 
--
+- Custom shapes: `node` (message) và `connection` (bezier), binding `connection` ↔ node ports.
+- Ports & tools: `Port`, `PointingPort`, `getPortAtPoint`, `portState`, `ConnectionBindingUtil`.
+- Resize ngang: override `onResize` trả về shape mới (x/y từ `resizeBox`, cập nhật `props.node.width`).
+- Ports bám giữa: `getPorts` dùng `(node.width ?? NODE_WIDTH_PX) / 2` cho `x`.
+- Indicator mask bám theo kích thước: dùng `width + EDGE_PAD*2 + 10`, `height + EDGE_PAD*2 + 10`.
 
 > **Do not guess tldraw APIs.** Use stable examples. If a method isn’t documented, skip and leave a TODO.
 
@@ -194,6 +207,13 @@ export const useBoard = create<State & Actions>(() => ({ /* TODO: impl */ }));
 ## 9) LLM Endpoints (Route Handlers)
 
 **Common input:** JSON with minimal fields; **Common output:** typed JSON for UI.
+
+### Existing routes
+- `/api/stream` (POST, ai-sdk): stream text (SSE). Có thể chuyển sang `toDataStreamResponse()` để nhận JSON event ai-sdk.
+- `/api/generate` (POST, ai-sdk): text non‑stream.
+
+### Optional: dùng SDK Gemini gốc
+- Trả về JSON đúng schema Gemini (candidates/parts). Client parse `parts[].text` để hiển thị.
 
 ### 9.1 `/api/llm/fanout` (POST)
 
