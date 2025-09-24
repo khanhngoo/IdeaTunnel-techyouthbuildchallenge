@@ -9,6 +9,8 @@ export const MessageNode = T.object({
   assistantMessage: T.string,
   isExpanded: T.boolean,
   isEditingTitle: T.boolean,
+  width: T.optional(T.number),
+  height: T.optional(T.number),
 })
 
 // Flexible validator for migration
@@ -19,6 +21,8 @@ export const MessageNodeFlexible = T.object({
   assistantMessage: T.string,
   isExpanded: T.optional(T.boolean),
   isEditingTitle: T.optional(T.boolean),
+  width: T.optional(T.number),
+  height: T.optional(T.number),
 })
 
 

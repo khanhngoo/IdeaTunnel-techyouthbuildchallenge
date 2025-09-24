@@ -38,7 +38,7 @@ export class MessageNodeDefinition extends NodeDefinition<MessageNode> {
   }
 
   getBodyWidthPx(shape: NodeShape, node: MessageNode): number {
-    void shape; void node; return NODE_WIDTH_PX
+    void shape; void node; return (node as any).width ?? NODE_WIDTH_PX
   }
 
   getBodyHeightPx(shape: NodeShape, node: MessageNode): number {
@@ -49,7 +49,7 @@ export class MessageNodeDefinition extends NodeDefinition<MessageNode> {
     if (assistantMessage) {
       const assistantSize = this.editor.textMeasure.measureText(assistantMessage, {
         fontFamily: 'Inter', fontSize: 14, fontWeight: '400', fontStyle: 'normal',
-        maxWidth: NODE_WIDTH_PX - 40, lineHeight: 1.5, padding: '0',
+        maxWidth: ((node as any).width ?? NODE_WIDTH_PX) - 40, lineHeight: 1.5, padding: '0',
       })
       baseHeight += Math.max(60, assistantSize.h + 20)
     }
@@ -59,9 +59,13 @@ export class MessageNodeDefinition extends NodeDefinition<MessageNode> {
     return (node as any).height ?? computed
   }
 
-  getPorts(shape: NodeShape, node: MessageNode) {
-    return { input: shapeInputPort, output: { ...shapeOutputPort, y: this.getBodyHeightPx(shape, node) } }
-  }
+	getPorts(shape: NodeShape, node: MessageNode) {
+		const w = (node as any).width ?? NODE_WIDTH_PX
+		return {
+			input: { id: 'input', terminal: 'end' as const, x: w / 2, y: 0 },
+			output: { id: 'output', terminal: 'start' as const, x: w / 2, y: this.getBodyHeightPx(shape, node) },
+		}
+	}
 
   Component = MessageNodeComponent
 }

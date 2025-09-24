@@ -74,13 +74,52 @@ export class NodeShapeUtil extends ShapeUtil<NodeShape> {
 		return true
 	}
 	override hideSelectionBoundsBg() {
-		return true
+		return false
 	}
 	override hideSelectionBoundsFg() {
-		return true
+		return false
 	}
 	override isAspectRatioLocked() {
 		return false
+	}
+
+	// Allow horizontal resize to adjust node.width persisted on the shape
+	override onResize(shape: NodeShape, info: TLResizeInfo<any>) {
+		const MIN_W = 320
+		const MAX_W = 1600
+		const currentW = getNodeWidthPx(this.editor, shape)
+		const scaleX = Math.abs(((info as any).scale?.x) ?? 1)
+		const nextW = Math.max(MIN_W, Math.min(MAX_W, Math.round(currentW * (scaleX || 1))))
+		const resized = resizeBox(shape, info)
+		const nextX = Number.isFinite((resized as any)?.x) ? (resized as any).x : shape.x
+		const nextY = Number.isFinite((resized as any)?.y) ? (resized as any).y : shape.y
+		const node = shape.props.node as any
+		console.debug('[NodeResize]', {
+			shapeId: shape.id,
+			currentW,
+			scaleX: (info as any).scale?.x,
+			nextW,
+			resized,
+			nextX,
+			nextY,
+		})
+		return {
+			...shape,
+			x: nextX,
+			y: nextY,
+			props: { node: { ...node, width: nextW } },
+		}
+	}
+
+	override onResizeEnd(initial: NodeShape, current: NodeShape) {
+		console.debug('[NodeResizeEnd]', {
+			shapeId: current.id,
+			initialX: initial.x,
+			initialY: initial.y,
+			currentX: current.x,
+			currentY: current.y,
+			finalWidth: getNodeWidthPx(this.editor, current),
+		})
 	}
 	override getBoundsSnapGeometry(shape: NodeShape) {
 		void shape;
@@ -92,6 +131,7 @@ export class NodeShapeUtil extends ShapeUtil<NodeShape> {
 	// Define the geometry of our node shape including ports
 	getGeometry(shape: NodeShape) {
 		const ports = getNodePorts(this.editor, shape)
+    const EDGE_PAD = 8
 
 		const portGeometries = Object.values(ports).map(
 			(port) =>
@@ -106,8 +146,10 @@ export class NodeShapeUtil extends ShapeUtil<NodeShape> {
 		)
 
 		const bodyGeometry = new Rectangle2d({
-			width: getNodeWidthPx(this.editor, shape),
-			height: getNodeHeightPx(this.editor, shape),
+			x: -EDGE_PAD,
+			y: -EDGE_PAD,
+			width: getNodeWidthPx(this.editor, shape) + EDGE_PAD * 2,
+			height: getNodeHeightPx(this.editor, shape) + EDGE_PAD * 2,
 			isFilled: true,
 		})
 
@@ -131,16 +173,27 @@ export class NodeShapeUtil extends ShapeUtil<NodeShape> {
 function NodeShapeIndicator({ shape, ports }: { shape: NodeShape; ports: NodeTypePorts }) {
 	const editor = useEditor()
 	const id = useUniqueSafeId()
-	const height = useValue('height', () => getNodeHeightPx(editor, shape), [
+		const height = useValue('height', () => getNodeHeightPx(editor, shape), [
 		shape.props.node,
 		editor,
 	])
+		const width = useValue('width', () => getNodeWidthPx(editor, shape), [
+			shape.props.node,
+			editor,
+		])
+	const EDGE_PAD = 8
 
 	return (
 		<>
 			{/* Create a mask to show ports as holes in the selection bounds */}
 			<mask id={id}>
-				<rect width={NODE_WIDTH_PX + 10} height={height + 10} fill="white" x={-5} y={-5} />
+			<rect
+				width={width + EDGE_PAD * 2 + 10}
+				height={height + EDGE_PAD * 2 + 10}
+				fill="white"
+				x={-EDGE_PAD - 5}
+				y={-EDGE_PAD - 5}
+			/>
 				{Object.values(ports).map((port) => (
 					<circle
 						key={port.id}
@@ -152,7 +205,7 @@ function NodeShapeIndicator({ shape, ports }: { shape: NodeShape; ports: NodeTyp
 					/>
 				))}
 			</mask>
-			<rect rx={9} width={NODE_WIDTH_PX} height={height} mask={`url(#${id})`} />
+			<rect rx={9} width={width + EDGE_PAD * 2} height={height + EDGE_PAD * 2} x={-EDGE_PAD} y={-EDGE_PAD} mask={`url(#${id})`} />
 			{Object.values(ports).map((port) => (
 				<circle key={port.id} cx={port.x} cy={port.y} r={PORT_RADIUS_PX} />
 			))}
@@ -172,6 +225,7 @@ function NodeShape({ shape }: { shape: NodeShape }) {
 				width: getNodeWidthPx(editor, shape),
 				height: getNodeHeightPx(editor, shape),
 				overflow: 'visible',
+				pointerEvents: 'none',
 			}}
 		>
 			<NodeBody shape={shape} />
@@ -185,7 +239,11 @@ function NodeBody({ shape }: { shape: NodeShape }) {
 	const node = shape.props.node
 	const editor = useEditor()
 	const { Component } = getNodeDefinition(editor, node)
-	return <Component shape={shape} node={node} />
+    return (
+        <div style={{ pointerEvents: 'auto', width: '100%', height: '100%' }}>
+            <Component shape={shape} node={node} />
+        </div>
+    )
 }
 
 function NodePorts({ shape }: { shape: NodeShape }) {
