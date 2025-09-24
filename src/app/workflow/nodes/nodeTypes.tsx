@@ -1,13 +1,13 @@
 import { Editor, T, WeakCache } from 'tldraw'
 import { PortId, shapePort } from '../ports/Port'
 import { NodeShape } from './NodeShapeUtil'
-import { MessageNodeDefinition } from './types/MessageNode'
+import { MessageNodeDefinition, MessageNodeFlexible } from './message'
 import { NodeDefinition, NodeDefinitionConstructor } from './types/shared'
 
 /** All our node types */
 export const NodeDefinitions = {
-	message: MessageNodeDefinition,
-} satisfies Record<string, NodeDefinitionConstructor<unknown>>;
+    message: MessageNodeDefinition,
+} satisfies Record<string, NodeDefinitionConstructor<any>>;
 
 const nodeDefinitions = new WeakCache<
 	Editor,
@@ -36,9 +36,9 @@ export function getNodeDefinition(
 export type NodeType = T.TypeOf<typeof NodeType>;
 export const NodeType = T.union(
 	'type',
-	Object.fromEntries(Object.values(NodeDefinitions).map((type) => [type.type, type.validator])) as {
-		[K in keyof typeof NodeDefinitions as (typeof NodeDefinitions)[K]['type']]: (typeof NodeDefinitions)[K]['validator']
-	}
+    Object.fromEntries(Object.values(NodeDefinitions).map((type) => [type.type, (type as unknown as { validator: typeof MessageNodeFlexible }).validator])) as {
+        [K in keyof typeof NodeDefinitions as (typeof NodeDefinitions)[K]['type']]: typeof MessageNodeFlexible
+    }
 )
 
 export function getNodeBodyHeightPx(editor: Editor, shape: NodeShape): number {
