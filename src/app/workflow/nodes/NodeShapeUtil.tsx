@@ -77,7 +77,7 @@ export class NodeShapeUtil extends ShapeUtil<NodeShape> {
 		return true
 	}
 	override hideSelectionBoundsFg() {
-		return truec
+		return true
 	}
 	override isAspectRatioLocked() {
 		return false
@@ -165,16 +165,19 @@ function NodeShape({ shape }: { shape: NodeShape }) {
 	const editor = useEditor()
 
 	return (
+		<>
 		<HTMLContainer
 			className={classNames('NodeShape')}
 			style={{
 				width: getNodeWidthPx(editor, shape),
 				height: getNodeHeightPx(editor, shape),
+				overflow: 'visible',
 			}}
 		>
 			<NodeBody shape={shape} />
-			<NodePorts shape={shape} />
 		</HTMLContainer>
+		<NodePorts shape={shape} />
+		</>
 	)
 }
 
