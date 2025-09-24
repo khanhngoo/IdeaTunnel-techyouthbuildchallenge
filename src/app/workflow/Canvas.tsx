@@ -27,6 +27,9 @@ import { keepConnectionsAtBottom } from "./connection/keepConnectionsAtBottom";
 import { disableTransparency } from "./disableTransparency";
 import { NodeShapeUtil } from "./nodes/NodeShapeUtil";
 import { PointingPort } from "./ports/PointingPort";
+import { useState } from "react";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
 // Custom ActionsMenu with rename functionality
 function CustomActionsMenu() {
@@ -129,8 +132,13 @@ const options: Partial<TldrawOptions> = {
 
 function WorkflowCanvas() {
 	return (
-		<div className="workflow" style={{ position: "fixed", inset: 0 }}>
-			<Tldraw
+		<SidebarProvider defaultOpen>
+			<AppSidebar />
+			<SidebarInset className="workflow" style={{ position: "fixed", inset: 0 }}>
+				<div className="absolute left-2 top-2 z-50">
+					<SidebarTrigger />
+				</div>
+				<Tldraw
 				persistenceKey="workflow"
 				options={options}
 				overrides={overrides}
@@ -191,7 +199,8 @@ function WorkflowCanvas() {
 					disableTransparency(editor, ["node", "connection"]);
 				}}
 			/>
-		</div>
+			</SidebarInset>
+		</SidebarProvider>
 	);
 }
 
