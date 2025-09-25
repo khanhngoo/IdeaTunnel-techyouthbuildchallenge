@@ -185,39 +185,14 @@ function RenameButton() {
 
 export function WorkflowToolbar() {
 	return (
-		<DefaultToolbar orientation="vertical" maxItems={7}>
+		<DefaultToolbar orientation="horizontal" maxItems={7}>
 			<TldrawUiMenuGroup id="selection">
 				<SelectToolbarItem />
 				<HandToolbarItem />
 				<DrawToolbarItem />
 			</TldrawUiMenuGroup>
-			<TldrawUiMenuGroup id="node-actions">
-				<RenameButton />
-			</TldrawUiMenuGroup>
 			<TldrawUiMenuGroup id="nodes">
 				<ToolbarItem tool="node-message" />
-			</TldrawUiMenuGroup>
-			<TldrawUiMenuGroup id="shapes">
-				<RectangleToolbarItem />
-				<EllipseToolbarItem />
-				<TriangleToolbarItem />
-				<NoteToolbarItem />
-
-				<DiamondToolbarItem />
-				<HexagonToolbarItem />
-				<OvalToolbarItem />
-				<RhombusToolbarItem />
-
-				<StarToolbarItem />
-				<CloudToolbarItem />
-				<HeartToolbarItem />
-				<XBoxToolbarItem />
-
-				<CheckBoxToolbarItem />
-				<TextToolbarItem />
-				<AssetToolbarItem />
-				<HighlightToolbarItem />
-				<LaserToolbarItem />
 			</TldrawUiMenuGroup>
 		</DefaultToolbar>
 	)

@@ -27,7 +27,7 @@ export function AppSidebar(
     <Sidebar collapsible="icon" {...props} variant="floating">
       <SidebarHeader>
         <div className="flex items-center justify-between">
-          <div className="text-sm font-semibold group-data-[collapsible=icon]:hidden">Whiteboards</div>
+          <div className="text-sm font-semibold group-data-[collapsible=icon]:hidden">IdeaTunnel</div>
           <div className="flex items-center gap-1">
             <SidebarTrigger />
           </div>
