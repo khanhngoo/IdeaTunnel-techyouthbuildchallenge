@@ -11,6 +11,7 @@ import { getNodePorts } from '../nodePorts'
 import { ConnectionShape } from '../../connection/ConnectionShapeUtil'
 import { createOrUpdateConnectionBinding } from '../../connection/ConnectionBindingUtil'
 import { DEFAULT_NODE_SPACING_PX } from '../../constants'
+import { layoutTreeFrom } from '../../autoLayout/treeLayout'
 
 export class RootChatNodeDefinition extends NodeDefinition<RootChatNode> {
   static type = 'rootchat' as const
@@ -86,6 +87,8 @@ export class RootChatNodeDefinition extends NodeDefinition<RootChatNode> {
           }
         })
       })
+      // 4) Auto layout (tree) from this main node
+      layoutTreeFrom(editor, shape.id as TLShapeId, { dx: 160, dy: 260 })
     }, [editor, shape.id, text])
 
     return (

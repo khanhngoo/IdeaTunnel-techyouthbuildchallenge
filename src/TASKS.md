@@ -80,3 +80,27 @@
 - [ ] Allow multiple main nodes; có thể đặt RootChatBar nhiều lần
 - [ ] Clean up: remove Auto‑Fanout button khỏi toolbar/context menu cũ
 - [ ] Tests cơ bản: chuẩn hóa title, mapping branches → nodes/edges
+
+---
+
+## Auto Layout (tree/DAG)
+
+- [ ] Chọn engine layout
+  - [ ] Cây 1-parent: `d3-hierarchy` + `d3.tree()`/`cluster()`
+  - [ ] DAG nhiều-parent: `elkjs` (layered) hoặc `dagre`
+- [ ] Xây builder dữ liệu layout (nodes/edges) từ `tldraw` shapes
+- [ ] Tính kích thước thực tế node (width/height) + margin → `nodeSize`
+- [x] Tính layout → map về `editor.animateShapes([...])`
+- [ ] Hỗ trợ nhiều root (mỗi root layout cục bộ, tránh va chạm)
+- [ ] Trigger: sau fanout và khi graph đổi (debounce)
+  
+Progress:
+- [x] Tạo `treeLayout.ts` dùng `d3-hierarchy` + `tree().nodeSize([dx,dy])`
+- [x] Hook vào flow: chạy auto layout sau fanout trong `RootChatDefinition`
+- [ ] Thêm separation cho siblings (`tree().separation((a,b)=>...)`) để giãn đều
+- [x] Lấy `width/height` thực tế từ bounds để tính `dx,dy` động
+- [x] Nút "Re-layout" trên toolbar (áp dụng cho cây của node đang chọn)
+- [ ] Debounce re-layout khi graph thay đổi (thêm/sửa/xóa edge)
+  
+Progress (tiếp):
+- [ ] Debounce re-layout: (bỏ qua theo quyết định: user chủ động bấm Re-layout)
