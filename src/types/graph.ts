@@ -67,6 +67,30 @@ export interface FanoutResponse {
   sections: FanoutSection[];
 }
 
+// 3-branch Fanout contracts (Product Brief / Technical Spec / Codebase Guide)
+export interface FanoutSubSection {
+  title: string;
+  bullets: string[];
+}
+
+export type FanoutBranchTitle = 'Product Brief' | 'Technical Specification' | 'Codebase Guide'
+export type FanoutBranchFile = 'product_brief.md' | 'technical_spec.md' | 'codebase_guide.md'
+
+export interface FanoutBranch {
+  title: FanoutBranchTitle;
+  file: FanoutBranchFile;
+  sections: FanoutSubSection[];
+}
+
+export interface Fanout3BranchResponse {
+  branches: FanoutBranch[];
+}
+
+export interface FanoutRequest {
+  idea: string;
+  parentId?: BlockID;
+}
+
 export interface SubchatContext {
   neighbors: Array<{
     id: BlockID;

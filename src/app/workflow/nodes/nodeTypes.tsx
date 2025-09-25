@@ -2,11 +2,13 @@ import { Editor, T, WeakCache } from 'tldraw'
 import { PortId, shapePort } from '../ports/Port'
 import { NodeShape } from './NodeShapeUtil'
 import { MessageNodeDefinition, MessageNodeFlexible } from './message'
+import { RootChatNodeDefinition } from './rootchat/RootChatDefinition'
 import { NodeDefinition, NodeDefinitionConstructor } from './types/shared'
 
 /** All our node types */
 export const NodeDefinitions = {
     message: MessageNodeDefinition,
+    rootchat: RootChatNodeDefinition,
 } satisfies Record<string, NodeDefinitionConstructor<any>>;
 
 const nodeDefinitions = new WeakCache<

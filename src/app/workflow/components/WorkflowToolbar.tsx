@@ -39,6 +39,14 @@ import {
 } from "tldraw";
 import { NodeShape } from "../nodes/NodeShapeUtil";
 import { getNodeDefinitions, NodeType } from "../nodes/nodeTypes";
+import { getNodePorts } from "../nodes/nodePorts";
+import { createOrUpdateConnectionBinding } from "../connection/ConnectionBindingUtil";
+import { ConnectionShape } from "../connection/ConnectionShapeUtil";
+import { DEFAULT_NODE_SPACING_PX, NODE_WIDTH_PX } from "../constants";
+import { RootChatOverlay } from "./RootChatOverlay";
+import { compileCanvasToPRDFiles, downloadFiles } from "@/lib/prd";
+import { useState } from "react";
+// (no extra imports)
 
 function createNodeShape(editor: Editor, shapeId: TLShapeId, center: Vec, node: NodeType) {
 	// Mark a history stopping point for undo/redo
@@ -184,8 +192,12 @@ function RenameButton() {
 }
 
 export function WorkflowToolbar() {
-	return (
-		<DefaultToolbar orientation="horizontal" maxItems={7}>
+    const editor = useEditor();
+    const [showRootChat, setShowRootChat] = useState(false);
+    const center = editor.getViewportPageBounds().center;
+    return (
+        <>
+        <DefaultToolbar orientation="horizontal" maxItems={7}>
 			<TldrawUiMenuGroup id="selection">
 				<SelectToolbarItem />
 				<HandToolbarItem />
@@ -193,7 +205,23 @@ export function WorkflowToolbar() {
 			</TldrawUiMenuGroup>
 			<TldrawUiMenuGroup id="nodes">
 				<ToolbarItem tool="node-message" />
+				<ToolbarItem tool="node-rootchat" />
 			</TldrawUiMenuGroup>
+            <TldrawUiMenuGroup id="ai">
+                <TldrawUiButton type="icon" title="Root Chat" onClick={() => setShowRootChat(true)}>
+                    <span>+</span>
+                </TldrawUiButton>
+                <TldrawUiButton type="icon" title="Export" onClick={() => {
+                    const files = compileCanvasToPRDFiles(editor)
+                    const all = Object.keys(files)
+                    if (all.length === 0) return
+                    downloadFiles(files)
+                }}>
+                    <span>⇩</span>
+                </TldrawUiButton>
+            </TldrawUiMenuGroup>
 		</DefaultToolbar>
+        <RootChatOverlay visible={showRootChat} x={center.x} y={center.y - 120} onClose={() => setShowRootChat(false)} />
+        </>
 	)
 }
