@@ -52,41 +52,28 @@ export function MessageNodeComponent({ node, shape }: NodeComponentProps<Message
       return
     }
 
-    const messages: ModelMessage[] = []
-    const connectedNodeShapes = getAllConnectedNodes(editor, shape, 'end')
-    for (const connectedShape of connectedNodeShapes) {
-      const n = editor.getShape(connectedShape)
-      if (!n) continue
-      if (!editor.isShapeOfType<NodeShape>(n, 'node')) continue
-      if (n.props.node.type !== 'message') continue
-      if (n.props.node.assistantMessage && connectedShape !== shape.id) {
-        messages.push({ role: 'assistant', content: n.props.node.assistantMessage ?? '' })
-      }
-      messages.push({ role: 'user', content: n.props.node.userMessage ?? '' })
-    }
-    messages.reverse()
+    // Focused rewrite: only update this node's content according to its title and instruction
+    const title = migratedNode.title
+    const content_md = migratedNode.assistantMessage
+    const instruction = migratedNode.userMessage
 
     updateNode<MessageNode>(editor, shape, (node) => ({ ...node, assistantMessage: '...', userMessage: '' }))
 
     ;(async () => {
       try {
-        const response = await fetch('/api/stream', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(messages),
+        const response = await fetch('/api/llm/rewrite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, content_md, instruction }),
         })
-        if (!response.body) return
-        const reader = response.body.getReader()
-        const decoder = new TextDecoder()
-        let accumulatedText = ''
-        while (true) {
-          const { value, done } = await reader.read()
-          if (done) break
-          const chunk = decoder.decode(value, { stream: true })
-          const maybeSse = chunk.split('\n').filter((l) => l.startsWith('data:')).map((l) => l.replace(/^data:\s?/, '')).join('')
-          accumulatedText += maybeSse || chunk
-          updateNode<MessageNode>(editor, shape, (node) => ({ ...node, assistantMessage: accumulatedText }))
-        }
+        if (!response.ok) throw new Error('rewrite failed')
+        const data = (await response.json()) as { content_md?: string }
+        const nextContent = (data?.content_md ?? '').trim()
+        updateNode<MessageNode>(editor, shape, (node) => ({ ...node, assistantMessage: nextContent || content_md }))
       } catch (e) {
         console.error(e)
+        // Fallback: keep old content if rewrite failed
+        updateNode<MessageNode>(editor, shape, (node) => ({ ...node, assistantMessage: content_md }))
       }
     })()
   }, [editor, shape, migratedNode.userMessage])
@@ -136,7 +123,7 @@ export function MessageNodeComponent({ node, shape }: NodeComponentProps<Message
         </div>
       )}
 
-      {isSelected && migratedNode.isExpanded && (
+      {migratedNode.isExpanded && (
         <div 
           style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', background: '#f8f9fa', borderRadius: '0 0 12px 12px', border: '1px solid #e5e7eb', borderTop: '1px solid rgba(0,0,0,0.06)', padding: '8px 12px', gap: 8, zIndex: 10 }}
           onPointerDown={(e) => { e.stopPropagation(); editor.markEventAsHandled(e) }}
