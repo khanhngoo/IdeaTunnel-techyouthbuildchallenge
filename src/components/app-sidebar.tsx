@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { supabase, isSupabaseConfigured, getSession, ensureUserBootstrap } from "@/lib/supabase.client"
 
 type ChatItem = { id: string; title: string; summary?: string }
 
@@ -43,12 +44,31 @@ export function AppSidebar(
   const [chats, setChats] = React.useState<ChatItem[]>([])
   const [editingId, setEditingId] = React.useState<string | null>(null)
   const [draftTitle, setDraftTitle] = React.useState<string>("")
-  React.useEffect(()=>{ setChats(loadChats()) }, [])
+  React.useEffect(()=>{
+    if (!isSupabaseConfigured()) { setChats(loadChats()); return }
+    ;(async()=>{
+      const { data: sess } = await getSession()
+      if (!sess.session) { setChats([]); return }
+      await ensureUserBootstrap()
+      // Load chats belonging to the user's workspaces
+      const { data } = await supabase!.from('chats').select('id,title,summary').order('created_at', { ascending: false })
+      if (data) setChats(data as any)
+    })()
+  }, [])
 
-  const createChat = React.useCallback(()=>{
+  const createChat = React.useCallback(async()=>{
+    if (isSupabaseConfigured()) {
+      const { workspaceId } = await ensureUserBootstrap()
+      const { data, error } = await supabase!.from('chats').insert({ title: 'Untitled', workspace_id: workspaceId }).select('id').single()
+      if (!error && data?.id) {
+        const next = [{ id: data.id, title: 'Untitled' }, ...chats]
+        setChats(next)
+        router.push(`/workflow/${data.id}`)
+        return
+      }
+    }
     const id = Math.random().toString(36).slice(2, 9)
-    const title = "Untitled"
-    const next = [{ id, title }, ...chats]
+    const next = [{ id, title: 'Untitled' }, ...chats]
     setChats(next)
     saveChats(next)
     router.push(`/workflow/${id}`)
@@ -58,10 +78,13 @@ export function AppSidebar(
     router.push(`/workflow/${id}`)
   }, [router])
 
-  const deleteChat = React.useCallback((id: string)=>{
+  const deleteChat = React.useCallback(async(id: string)=>{
+    if (isSupabaseConfigured()) {
+      await supabase!.from('chats').delete().eq('id', id)
+    }
     const next = chats.filter(c => c.id !== id)
     setChats(next)
-    saveChats(next)
+    if (!isSupabaseConfigured()) saveChats(next)
     if (pathname && pathname.startsWith('/workflow/') && pathname.endsWith(id)) {
       const fallback = next[0]?.id
       router.push(fallback ? `/workflow/${fallback}` : `/workflow`)
@@ -74,13 +97,16 @@ export function AppSidebar(
     setDraftTitle(current?.title ?? 'Untitled')
   }, [chats])
 
-  const commitRename = React.useCallback(()=>{
+  const commitRename = React.useCallback(async()=>{
     if (!editingId) return
     const trimmed = draftTitle.trim()
     if (trimmed.length === 0) { setEditingId(null); return }
+    if (isSupabaseConfigured()) {
+      await supabase!.from('chats').update({ title: trimmed }).eq('id', editingId)
+    }
     const next = chats.map(c => c.id === editingId ? { ...c, title: trimmed } : c)
     setChats(next)
-    saveChats(next)
+    if (!isSupabaseConfigured()) saveChats(next)
     setEditingId(null)
   }, [editingId, draftTitle, chats])
 

@@ -9,7 +9,7 @@ export default function WorkflowChatPage({ params }: { params: Promise<{ chatId:
   const key = `workflow:${chatId}`;
   return (
     <main className="w-full h-screen">
-      <WorkflowCanvas persistenceKey={key} />
+      <WorkflowCanvas persistenceKey={key} chatId={chatId} />
     </main>
   );
 }

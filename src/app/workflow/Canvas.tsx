@@ -27,7 +27,7 @@ import { keepConnectionsAtBottom } from "./connection/keepConnectionsAtBottom";
 import { disableTransparency } from "./disableTransparency";
 import { NodeShapeUtil } from "./nodes/NodeShapeUtil";
 import { PointingPort } from "./ports/PointingPort";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 
@@ -130,7 +130,9 @@ const options: Partial<TldrawOptions> = {
 	maxPages: 1,
 };
 
-function WorkflowCanvas(props: { persistenceKey?: string } = {}) {
+import { supabase, isSupabaseConfigured } from "@/lib/supabase.client";
+
+function WorkflowCanvas(props: { persistenceKey?: string; chatId?: string } = {}) {
 	return (
 		<SidebarProvider defaultOpen>
 			<AppSidebar />
@@ -148,6 +150,28 @@ function WorkflowCanvas(props: { persistenceKey?: string } = {}) {
 				onMount={(editor) => {
 					const editorWindow = window as Window & { editor?: typeof editor };
 					editorWindow.editor = editor;
+
+					// Load snapshot from Supabase if configured and chatId provided
+					(async () => {
+						if (!isSupabaseConfigured() || !props.chatId) return;
+						try {
+							// Only query DB when chatId looks like a UUID (to avoid 22P02)
+							const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(props.chatId);
+							if (!isUuid) { (editor as any).__skipCanvasDb = true; return; }
+							const { data, error } = await supabase!.from('canvases').select('doc').eq('chat_id', props.chatId).maybeSingle();
+							if (error) {
+								// If canvases table missing, disable DB persistence for this session
+								if ((error as any).code === 'PGRST205') {
+									(editor as any).__skipCanvasDb = true;
+								}
+								return;
+							}
+							if (data?.doc) {
+								// Best-effort load, ignore if schema changed
+								try { (editor.store as any).loadSnapshot?.(data.doc as any) } catch {}
+							}
+						} catch {}
+					})();
 					
 					// Migrate existing nodes to new format
 					const shapes = editor.getCurrentPageShapes();
@@ -202,6 +226,27 @@ function WorkflowCanvas(props: { persistenceKey?: string } = {}) {
 
 					// Disable transparency for workflow shapes
 					disableTransparency(editor, ["node", "connection"]);
+
+					// Auto-save snapshot to Supabase (debounced)
+					if (isSupabaseConfigured() && props.chatId) {
+						let saveTimer: any = null;
+						const unsub = editor.store.listen(() => {
+							clearTimeout(saveTimer);
+							saveTimer = setTimeout(async () => {
+								try {
+									if ((editor as any).__skipCanvasDb) return;
+									const snapshot = (editor.store as any).getSnapshot?.() ?? (editor.store as any).serialize?.() ?? null;
+									if (!snapshot) return;
+									const { error } = await supabase!.from('canvases').upsert({ chat_id: props.chatId, doc: snapshot, updated_at: new Date().toISOString() }, { onConflict: 'chat_id' });
+									if (error && (error as any).code === 'PGRST205') {
+										(editor as any).__skipCanvasDb = true;
+									}
+								} catch {}
+							}, 800);
+						});
+						// Cleanup listener on unmount
+						(editor as any).__unsub_save = unsub;
+					}
 				}}
 			/>
 			</SidebarInset>
