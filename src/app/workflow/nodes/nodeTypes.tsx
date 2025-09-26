@@ -27,9 +27,9 @@ export function getNodeDefinition(
 	editor: Editor,
 	node: NodeType | NodeType['type']
 ): NodeDefinition<NodeType> {
-	return getNodeDefinitions(editor)[
-		typeof node === 'string' ? node : node.type
-	] as NodeDefinition<NodeType>
+	const nodeType = typeof node === 'string' ? node : node.type;
+	const definitions = getNodeDefinitions(editor);
+	return definitions[nodeType as keyof typeof definitions] as NodeDefinition<NodeType>;
 }
 
 /**
