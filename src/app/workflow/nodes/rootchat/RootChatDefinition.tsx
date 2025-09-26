@@ -59,7 +59,7 @@ export class RootChatNodeDefinition extends NodeDefinition<RootChatNode> {
       const parentPorts = getNodePorts(editor, shape.id)
       const parentOut = Object.values(parentPorts).find(p => p.terminal === 'start')
       const center = { x: shapeBounds.midX, y: shapeBounds.midY }
-      const branches = (data?.branches ?? []) as Array<{ title:string; file:string; sections: Array<{ title:string; bullets:string[] }> }>
+      const branches = (data?.branches ?? []) as Array<{ title:string; file:string; sections: Array<{ title:string; content?:string; bullets?:string[] }> }>
       const radius = Math.max(shapeBounds.width, shapeBounds.height) + 200
       editor.run(()=>{
         branches.forEach((branch, i)=>{
@@ -77,7 +77,9 @@ export class RootChatNodeDefinition extends NodeDefinition<RootChatNode> {
           }
           let yCursor = by + 160
           for (const section of branch.sections) {
-            const content = ['- '+(section.bullets ?? []).join('\n- ')].join('\n')
+            const content = (section.content && section.content.trim().length > 0)
+              ? section.content
+              : ['- '+(section.bullets ?? []).join('\n- ')].join('\n')
             const subId = createShapeId(); editor.createShape<NodeShapeType>({ type:'node', id: subId, x: bx - NODE_WIDTH_PX/2, y: yCursor, props:{ node:{ type:'message', title: section.title, userMessage:'', assistantMessage: content, isExpanded:true, isEditingTitle:false } as any } })
             const subPorts = getNodePorts(editor, subId)
             const branchOut = Object.values(branchPorts).find(p=>p.terminal==='start')

@@ -130,7 +130,7 @@ const options: Partial<TldrawOptions> = {
 	maxPages: 1,
 };
 
-function WorkflowCanvas() {
+function WorkflowCanvas(props: { persistenceKey?: string } = {}) {
 	return (
 		<SidebarProvider defaultOpen>
 			<AppSidebar />
@@ -139,7 +139,7 @@ function WorkflowCanvas() {
 					<SidebarTrigger />
 				</div>
 				<Tldraw
-				persistenceKey="workflow"
+				persistenceKey={props.persistenceKey ?? "workflow"}
 				options={options}
 				overrides={overrides}
 				shapeUtils={shapeUtils}
@@ -177,7 +177,12 @@ function WorkflowCanvas() {
 					}
 					
 					if (!editor.getCurrentPageShapes().some((s) => s.type === "node")) {
-						editor.createShape({ type: "node", x: 200, y: 200 });
+						editor.createShape({
+							type: "node",
+							x: 200,
+							y: 200,
+							props: { node: { type: 'rootchat', title: 'Root Chat', idea: '', isSubmitting: false } as any },
+						});
 					}
 
 					editor.user.updateUserPreferences({ isSnapMode: true });

@@ -70,7 +70,10 @@ export interface FanoutResponse {
 // 3-branch Fanout contracts (Product Brief / Technical Spec / Codebase Guide)
 export interface FanoutSubSection {
   title: string;
-  bullets: string[];
+  // New schema prefers formatted markdown content
+  content?: string;
+  // Back-compat with older prompts
+  bullets?: string[];
 }
 
 export type FanoutBranchTitle = 'Product Brief' | 'Technical Specification' | 'Codebase Guide'

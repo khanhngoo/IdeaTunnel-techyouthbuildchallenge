@@ -8,44 +8,45 @@ Follow this exact schema and do not include explanations.
       "title": "Product Brief",
       "file": "product_brief.md",
       "sections": [
-        { "title": "Product Summary", "bullets": ["..."] },
-        { "title": "Problem Statement", "bullets": ["..."] },
-        { "title": "Target Audience / User Personas", "bullets": ["..."] },
-        { "title": "Key Features & Benefits", "bullets": ["..."] },
-        { "title": "Unique Value Proposition (UVP)", "bullets": ["..."] },
-        { "title": "Primary Use Cases & Scenarios", "bullets": ["..."] }
+        { "title": "Product Summary", "content": "..." },
+        { "title": "Problem Statement", "content": "..." },
+        { "title": "Target Audience / User Personas", "content": "..." },
+        { "title": "Key Features & Benefits", "content": "..." },
+        { "title": "Unique Value Proposition (UVP)", "content": "..." },
+        { "title": "Primary Use Cases & Scenarios", "content": "..." }
       ]
     },
     {
       "title": "Technical Specification",
       "file": "technical_spec.md",
       "sections": [
-        { "title": "System Architecture Overview", "bullets": ["..."] },
-        { "title": "Core Components & Modules", "bullets": ["..."] },
-        { "title": "Data Models & Schema", "bullets": ["..."] },
-        { "title": "API Endpoints & Contracts", "bullets": ["..."] },
-        { "title": "Key Algorithms & Business Logic", "bullets": ["..."] },
-        { "title": "Technology Stack", "bullets": ["..."] },
-        { "title": "Dependencies & Integrations", "bullets": ["..."] }
+        { "title": "System Architecture Overview", "content": "..." },
+        { "title": "Core Components & Modules", "content": "..." },
+        { "title": "Data Models & Schema", "content": "..." },
+        { "title": "API Endpoints & Contracts", "content": "..." },
+        { "title": "Key Algorithms & Business Logic", "content": "..." },
+        { "title": "Technology Stack", "content": "..." },
+        { "title": "Dependencies & Integrations", "content": "..." }
       ]
     },
     {
       "title": "Codebase Guide",
       "file": "codebase_guide.md",
       "sections": [
-        { "title": "Project Structure Overview", "bullets": ["..."] },
-        { "title": "Local Setup & Installation", "bullets": ["..."] },
-        { "title": "Coding Standards & Style Guide", "bullets": ["..."] },
-        { "title": "Testing Strategy", "bullets": ["..."] },
-        { "title": "Deployment Process", "bullets": ["..."] },
-        { "title": "Key Abstractions & Design Patterns", "bullets": ["..."] }
+        { "title": "Project Structure Overview", "content": "..." },
+        { "title": "Local Setup & Installation", "content": "..." },
+        { "title": "Coding Standards & Style Guide", "content": "..." },
+        { "title": "Testing Strategy", "content": "..." },
+        { "title": "Deployment Process", "content": "..." },
+        { "title": "Key Abstractions & Design Patterns", "content": "..." }
       ]
     }
   ]
 }
 
 Constraints:
-- Keep each bullets array concise (3-6 items when possible).
+- Use concise, well‑formatted Markdown for each section's content.
+- Favor paragraphs, short lists, and inline headers where helpful.
 - Tailor content to this idea: ${idea}
 - Output strictly valid JSON.`
 }
