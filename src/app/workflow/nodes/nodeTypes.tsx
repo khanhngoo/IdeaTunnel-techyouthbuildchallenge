@@ -3,6 +3,7 @@ import { PortId, shapePort } from '../ports/Port'
 import { NodeShape } from './NodeShapeUtil'
 import { MessageNodeDefinition, MessageNodeFlexible } from './message'
 import { RootChatNodeDefinition } from './rootchat/RootChatDefinition'
+import { RootChatNodeFlexible } from './rootchat/RootChatTypes'
 import { NodeDefinition, NodeDefinitionConstructor } from './types/shared'
 
 /** All our node types */
@@ -38,8 +39,9 @@ export function getNodeDefinition(
 export type NodeType = T.TypeOf<typeof NodeType>;
 export const NodeType = T.union(
 	'type',
-    Object.fromEntries(Object.values(NodeDefinitions).map((type) => [type.type, (type as unknown as { validator: typeof MessageNodeFlexible }).validator])) as {
-        [K in keyof typeof NodeDefinitions as (typeof NodeDefinitions)[K]['type']]: typeof MessageNodeFlexible
+    {
+        message: MessageNodeFlexible,
+        rootchat: RootChatNodeFlexible,
     }
 )
 
