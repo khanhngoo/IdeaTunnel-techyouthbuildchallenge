@@ -30,6 +30,10 @@ import { PointingPort } from "./ports/PointingPort";
 import { useEffect, useRef, useState } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { compileCanvasToPRDFiles, downloadFiles } from "@/lib/prd";
+import { layoutTreeFrom } from "./autoLayout/treeLayout";
 
 // Custom ActionsMenu with rename functionality
 function CustomActionsMenu() {
@@ -249,6 +253,34 @@ function WorkflowCanvas(props: { persistenceKey?: string; chatId?: string } = {}
 					}
 				}}
 			/>
+                <div className="absolute right-4 top-3 z-50 flex items-center gap-2">
+                  <Button variant="outline" onClick={() => {
+                    const editor = (window as any).editor
+                    const selected = editor.getSelectedShapes?.() ?? []
+                    const nodeShape = selected.find((s:any) => s.type === 'node')
+                    const target = nodeShape?.id ?? editor.getCurrentPageShapes?.().find((s:any)=>s.type==='node')?.id
+                    if (target) layoutTreeFrom(editor, target as any, { dx: 160, dy: 260 })
+                  }}>Auto layout</Button>
+                  <Select onValueChange={(v)=>{
+                    const editor = (window as any).editor
+                    const files = compileCanvasToPRDFiles(editor)
+                    const all = Object.keys(files)
+                    if (all.length === 0) return
+                    if (v === 'all') { downloadFiles(files); return }
+                    const filtered: Record<string,string> = {}
+                    for (const k of all) if (k.endsWith(v)) filtered[k] = files[k]
+                    downloadFiles(filtered)
+                  }}>
+                    <SelectTrigger className="w-[200px]"><SelectValue placeholder="Download Markdown" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="product_brief.md">Product Brief</SelectItem>
+                      <SelectItem value="technical_spec.md">Technical Spec</SelectItem>
+                      <SelectItem value="codebase_guide.md">Codebase Guide</SelectItem>
+                      <SelectItem value="prd.md">Compiled PRD</SelectItem>
+                      <SelectItem value="all">Download All</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 			</SidebarInset>
 		</SidebarProvider>
 	);

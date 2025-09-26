@@ -44,9 +44,7 @@ import { createOrUpdateConnectionBinding } from "../connection/ConnectionBinding
 import { ConnectionShape } from "../connection/ConnectionShapeUtil";
 import { DEFAULT_NODE_SPACING_PX, NODE_WIDTH_PX } from "../constants";
 import { RootChatOverlay } from "./RootChatOverlay";
-import { compileCanvasToPRDFiles, downloadFiles } from "@/lib/prd";
 import { useState } from "react";
-import { layoutTreeFrom } from "../autoLayout/treeLayout";
 // (no extra imports)
 
 function createNodeShape(editor: Editor, shapeId: TLShapeId, center: Vec, node: NodeType) {
@@ -208,27 +206,7 @@ export function WorkflowToolbar() {
 				<ToolbarItem tool="node-message" />
 				<ToolbarItem tool="node-rootchat" />
 			</TldrawUiMenuGroup>
-            <TldrawUiMenuGroup id="ai">
-                <TldrawUiButton type="icon" title="Root Chat" onClick={() => setShowRootChat(true)}>
-                    <span>+</span>
-                </TldrawUiButton>
-                <TldrawUiButton type="icon" title="Re-layout" onClick={() => {
-                    const selected = editor.getSelectedShapes();
-                    const nodeShape = selected.find(s => s.type === 'node');
-                    const target = nodeShape?.id ?? editor.getCurrentPageShapes().find(s=>s.type==='node')?.id;
-                    if (target) layoutTreeFrom(editor, target as any, { dx: 160, dy: 260 });
-                }}>
-                    <span>↺</span>
-                </TldrawUiButton>
-                <TldrawUiButton type="icon" title="Export" onClick={() => {
-                    const files = compileCanvasToPRDFiles(editor)
-                    const all = Object.keys(files)
-                    if (all.length === 0) return
-                    downloadFiles(files)
-                }}>
-                    <span>⇩</span>
-                </TldrawUiButton>
-            </TldrawUiMenuGroup>
+            
 		</DefaultToolbar>
         <RootChatOverlay visible={showRootChat} x={center.x} y={center.y - 120} onClose={() => setShowRootChat(false)} />
         </>

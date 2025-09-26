@@ -3,7 +3,7 @@ import { NodeDefinition, NodeComponentProps } from '../types/shared'
 import { NodeShape } from '../NodeShapeUtil'
 import { NODE_WIDTH_PX } from '../../constants'
 import { RootChatNode, RootChatNodeFlexible } from './RootChatTypes'
-import { SendIcon } from '../../components/icons/SendIcon'
+import { HandleIcon } from '../../components/icons/HandleIcon'
 import { useCallback, useState } from 'react'
 import { createShapeId, TLShapeId } from 'tldraw'
 import { NodeShape as NodeShapeType } from '../NodeShapeUtil'
@@ -12,13 +12,14 @@ import { ConnectionShape } from '../../connection/ConnectionShapeUtil'
 import { createOrUpdateConnectionBinding } from '../../connection/ConnectionBindingUtil'
 import { DEFAULT_NODE_SPACING_PX } from '../../constants'
 import { layoutTreeFrom } from '../../autoLayout/treeLayout'
+import { Input } from '@/components/ui/input'
 
 export class RootChatNodeDefinition extends NodeDefinition<RootChatNode> {
   static type = 'rootchat' as const
   static validator = RootChatNodeFlexible
   title = 'Root Chat'
   heading = 'Root Chat'
-  icon = <SendIcon />
+  icon = <HandleIcon />
   constructor(public editor: Editor) { super(editor) }
 
   getDefault(): RootChatNode {
@@ -94,10 +95,27 @@ export class RootChatNodeDefinition extends NodeDefinition<RootChatNode> {
     }, [editor, shape.id, text])
 
     return (
-      <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 12px', background:'#fff', border:'1px solid #000', borderRadius:8 }}
-           onPointerDown={(e)=>{ e.stopPropagation(); editor?.select(shape.id) }}>
-        <button type="button" title="product package" style={{ border:'none', background:'transparent', fontWeight:700 }}>+</button>
-        <input value={text} onChange={e=>setText(e.target.value)} placeholder="What’s on the agenda today?" style={{ flex:1, border:'1px solid #000', borderRadius:6, padding:'8px 10px', outline:'none' }} onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); submit(); } }} />
+      <div
+        style={{
+          display:'flex',
+          alignItems:'center',
+          gap:8,
+          padding:'8px 12px',
+          background:'#fff',
+          border:'1px solid #000',
+          borderRadius:8
+        }}
+        onPointerDown={(e)=>{ e.stopPropagation(); editor?.select(shape.id) }}
+      >
+        <Input
+          value={text}
+          onChange={e=>setText(e.target.value)}
+          placeholder="What’s on the agenda today?"
+          className="h-9"
+          onKeyDown={(e)=>{
+            if (e.key==='Enter') { e.preventDefault(); submit(); }
+          }}
+        />
       </div>
     )
   }
