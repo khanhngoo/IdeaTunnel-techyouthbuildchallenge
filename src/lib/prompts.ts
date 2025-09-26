@@ -48,5 +48,8 @@ Constraints:
 - Use concise, well‑formatted Markdown for each section's content.
 - Favor paragraphs, short lists, and inline headers where helpful.
 - Tailor content to this idea: ${idea}
+- Titles and headings must be terse; NEVER include meta phrases like "Here are", "Options", "Below are", "In this section".
+- If a project name is needed, use a single-word codename (e.g., "Flux") with no extra words.
+- Start content directly; avoid prefaces like "Here are the options..." or similar.
 - Output strictly valid JSON.`
 }
