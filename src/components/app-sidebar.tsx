@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { supabase, isSupabaseConfigured, getSession, ensureUserBootstrap } from "@/lib/supabase.client"
+import { supabase, isSupabaseConfigured, getSession, ensureUserBootstrap } from "@/lib/db/supabase.client"
 
 type ChatItem = { id: string; title: string; summary?: string }
 

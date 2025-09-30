@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { supabase, isSupabaseConfigured, ensureUserBootstrap } from "@/lib/supabase.client";
+import { supabase, isSupabaseConfigured, ensureUserBootstrap } from "@/lib/db/supabase.client";
 
 export default function Home() {
   const router = useRouter();

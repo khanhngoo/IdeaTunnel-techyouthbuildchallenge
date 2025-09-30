@@ -115,6 +115,26 @@ export interface SubchatResponse {
   content_md: string;
 }
 
+// Smart rewrite types - dynamic decision on whether to replace or expand
+export interface SmartRewriteRequest {
+  nodeId: string;
+  instruction: string;
+  currentContent: string;
+  currentTitle: string;
+  parentContext?: string;
+}
+
+export interface SmartRewriteBranch {
+  title: string;
+  content: string;
+}
+
+export interface SmartRewriteResponse {
+  action: 'replace' | 'expand';
+  content?: string; // For 'replace' action
+  branches?: SmartRewriteBranch[]; // For 'expand' action
+}
+
 export interface RewriteRequest {
   featureId: BlockID;
   evidence: Array<{

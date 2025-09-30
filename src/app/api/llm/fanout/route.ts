@@ -1,6 +1,6 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
-import { buildFanout3Prompt } from "@/lib/prompts";
+import { buildFanout3Prompt } from "@/services/prompts";
 import { Fanout3BranchResponse, FanoutRequest } from "@/types/graph";
 
 export const runtime = "edge";

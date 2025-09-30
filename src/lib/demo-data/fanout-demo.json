@@ -1,0 +1,98 @@
+{
+  "branches": [
+    {
+      "title": "Product Brief",
+      "file": "product_brief.md",
+      "sections": [
+        {
+          "title": "Product Summary",
+          "content": "Mise is a mobile application that teaches fundamental cooking skills through bite-sized, gamified lessons. It applies language-learning principles to the culinary arts, making it fun and accessible for users to build confidence in the kitchen, from basic knife skills to complex sauce making."
+        },
+        {
+          "title": "Problem Statement",
+          "content": "Aspiring home cooks often feel intimidated by complex recipes and lengthy video tutorials. They lack a structured, engaging path to learn foundational techniques, leading to frustration and reliance on expensive takeout. Existing resources are often passive, unengaging, and fail to build skills progressively."
+        },
+        {
+          "title": "Target Audience / User Personas",
+          "content": "### Primary: The Novice Explorer (22-35)\n- **Goal**: Wants to learn to cook to save money, eat healthier, and be more independent.\n- **Pain Point**: Doesn't know where to start and finds cooking shows or recipe blogs overwhelming.\n- **Behavior**: Spends a lot of time on their phone, enjoys gamified apps and achievement-based progress.\n\n### Secondary: The Skill-Builder (30-45)\n- **Goal**: Already knows basic cooking but wants to master specific techniques (e.g., butchery, pastry, sauces).\n- **Pain Point**: Lacks a structured way to practice and refine advanced skills.\n- **Behavior**: Seeks out high-quality instruction and appreciates a focused learning curriculum."
+        },
+        {
+          "title": "Key Features & Benefits",
+          "content": "- **Bite-Sized Lessons**: Learn essential skills in 5-10 minute interactive sessions. Benefit: Fits easily into a busy schedule and prevents information overload.\n- **Gamified Skill Trees**: Unlock new techniques and recipes as you progress through structured learning paths. Benefit: Provides clear goals and a rewarding sense of accomplishment.\n- **Hands-On Practice Modules**: Follow along with guided exercises, from dicing an onion to folding a dumpling. Benefit: Builds muscle memory and practical, real-world skills.\n- **Streaks & Leaderboards**: Maintain a daily learning streak and compete with friends. Benefit: Creates motivation through social engagement and positive reinforcement."
+        },
+        {
+          "title": "Unique Value Proposition (UVP)",
+          "content": "For the aspiring home cook who feels lost in the kitchen, Mise is the only mobile app that makes learning to cook as fun and addictive as learning a language. We turn culinary education into a game, building your skills and confidence one lesson at a time."
+        },
+        {
+          "title": "Primary Use Cases & Scenarios",
+          "content": "- **Daily Commute Learning**: A user completes a quick lesson on 'The 5 Mother Sauces' while on the train to work.\n- **Weekend Skill-Up**: A user dedicates a Saturday afternoon to completing the 'Knife Skills' module, practicing dicing, mincing, and julienning.\n- **Pre-Dinner Prep**: Before trying a new recipe, a user reviews a 2-minute lesson on 'How to Properly Sear a Steak' to refresh their memory."
+        }
+      ]
+    },
+    {
+      "title": "Technical Specification",
+      "file": "technical_spec.md",
+      "sections": [
+        {
+          "title": "System Architecture Overview",
+          "content": "A mobile-first, client-server architecture. A React Native client app communicates with a central RESTful API built on Node.js. User data and progress are stored in a PostgreSQL database. Video content and static assets are served globally via a CDN (e.g., AWS S3 + CloudFront) for low-latency access."
+        },
+        {
+          "title": "Core Components & Modules",
+          "content": "- **User Service**: Manages authentication (JWT), user profiles, and progress data.\n- **Content Service**: Manages and serves lesson plans, skill trees, videos, and quiz data.\n- **Gamification Engine**: A stateless service that processes lesson completion events to calculate XP, update streaks, and manage leaderboard rankings in Redis.\n- **Video Processing Pipeline**: An event-driven workflow using AWS Lambda and MediaConvert to transcode and prepare uploaded video content for streaming."
+        },
+        {
+          "title": "Data Models & Schema",
+          "content": "```sql\n-- Users Table\nCREATE TABLE users (\n  id UUID PRIMARY KEY,\n  email VARCHAR(255) UNIQUE NOT NULL,\n  username VARCHAR(50) UNIQUE NOT NULL,\n  xp BIGINT DEFAULT 0,\n  current_streak INT DEFAULT 0\n);\n\n-- Skills Table (e.g., Knife Skills, Sauces)\nCREATE TABLE skills (\n  id UUID PRIMARY KEY,\n  title VARCHAR(100) NOT NULL,\n  unlock_requirement INT -- XP required to unlock\n);\n\n-- Lessons Table\nCREATE TABLE lessons (\n  id UUID PRIMARY KEY,\n  skill_id UUID REFERENCES skills(id),\n  title VARCHAR(100) NOT NULL,\n  lesson_type VARCHAR(20) NOT NULL, -- 'video', 'quiz', 'practice'\n  video_url TEXT,\n  xp_value INT NOT NULL\n);\n\n-- User Progress Table\nCREATE TABLE user_progress (\n  user_id UUID REFERENCES users(id),\n  lesson_id UUID REFERENCES lessons(id),\n  completed_at TIMESTAMPTZ NOT NULL,\n  PRIMARY KEY (user_id, lesson_id)\n);\n```"
+        },
+        {
+          "title": "API Endpoints & Contracts",
+          "content": "```\n# Authentication\nPOST /v1/auth/login\nPOST /v1/auth/register\n\n# Skills & Lessons\nGET /v1/skills\nGET /v1/skills/{skillId}/lessons\nGET /v1/lessons/{lessonId}\n\n# User Progress\nPOST /v1/progress/lessons/{lessonId}/complete\nGET /v1/users/me/progress\n\n# Gamification\nGET /v1/leaderboard/weekly\n```"
+        },
+        {
+          "title": "Key Algorithms & Business Logic",
+          "content": "- **Streak Calculation**: A streak is maintained if a user completes at least one lesson within a 24-hour period (UTC). A nightly cron job checks for and resets broken streaks.\n- **Leaderboard Generation**: Weekly leaderboards are managed in a Redis Sorted Set. User scores are `(XP gained this week)`. The set expires every Monday at 00:00 UTC.\n- **Skill Unlocking**: The API checks a user's total XP against the `unlock_requirement` of a skill before serving its lesson content."
+        },
+        {
+          "title": "Technology Stack",
+          "content": "- **Frontend**: React Native, TypeScript, Redux Toolkit\n- **Backend**: Node.js, Express, TypeScript\n- **Database**: PostgreSQL\n- **Caching**: Redis (for leaderboards and session data)\n- **Cloud Services**: AWS (S3, CloudFront, ECS, Lambda, MediaConvert)\n- **Containerization**: Docker"
+        },
+        {
+          "title": "Dependencies & Integrations",
+          "content": "- **Authentication**: Passport.js with JWT strategy. OAuth 2.0 integration for Google/Apple sign-in.\n- **Payments**: Stripe for premium subscription content.\n- **Analytics**: Mixpanel or Amplitude for tracking user engagement events.\n- **Push Notifications**: Firebase Cloud Messaging (FCM) for reminders and notifications."
+        }
+      ]
+    },
+    {
+      "title": "Codebase Guide",
+      "file": "codebase_guide.md",
+      "sections": [
+        {
+          "title": "Project Structure Overview",
+          "content": "Monorepo managed with pnpm workspaces.\n```\n/mise\n├── apps/\n│   ├── mobile      # React Native app\n│   └── api         # Express.js backend\n├── packages/\n│   ├── ui          # Shared React Native components\n│   ├── eslint-config\n│   └── tsconfig\n└── package.json\n```"
+        },
+        {
+          "title": "Local Setup & Installation",
+          "content": "1. Install Node.js, pnpm, Docker, and platform-specific SDKs (Xcode/Android Studio).\n2. Clone the repository: `git clone <repo_url>`.\n3. Install dependencies from the root: `pnpm install`.\n4. Set up environment variables by copying `.env.example` to `.env` in `apps/api` and `apps/mobile`.\n5. Start services: `docker-compose up -d` to run Postgres/Redis.\n6. Run the backend and frontend: `pnpm --filter api dev` and `pnpm --filter mobile start`."
+        },
+        {
+          "title": "Coding Standards & Style Guide",
+          "content": "- **Language**: TypeScript with strict mode enabled.\n- **Formatting**: Prettier, enforced via a pre-commit hook with Husky.\n- **Linting**: ESLint with a shared configuration from `/packages/eslint-config`.\n- **Commit Messages**: Must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.\n- **Naming Conventions**: `camelCase` for variables/functions, `PascalCase` for components/classes/types."
+        },
+        {
+          "title": "Testing Strategy",
+          "content": "- **Unit Tests**: Jest and React Native Testing Library for mobile components. Jest and Supertest for API endpoints and services. Target >85% code coverage.\n- **Integration Tests**: Focused on testing the interaction between services, especially API-database communication.\n- **E2E Tests**: Detox for automated testing of critical user flows (e.g., onboarding, lesson completion) on both iOS and Android simulators.\n- **CI**: GitHub Actions workflow runs linting, type-checking, and all tests on every pull request to the `main` branch."
+        },
+        {
+          "title": "Deployment Process",
+          "content": "- **API**: The `api` app is containerized via Docker. Merges to `main` trigger a GitHub Action to build and push the image to AWS ECR, followed by a rolling deployment on ECS.\n- **Mobile**: Deployments are managed via Fastlane.\n  - `fastlane beta`: Deploys a new build to TestFlight and Google Play Internal Testing.\n  - `fastlane release`: Promotes a build to production and submits it for App Store/Play Store review."
+        },
+        {
+          "title": "Key Abstractions & Design Patterns",
+          "content": "- **API**: Follows a Service-Repository pattern to decouple business logic from data access. Dependency injection is used to manage service instances.\n- **Mobile App**: State is managed globally with Redux Toolkit. API interactions are handled via RTK Query for caching, optimistic updates, and error handling. UI is built with a declarative, component-based approach.\n- **Shared Types**: A `shared-types` package within the monorepo provides a single source of truth for data structures used by both the API and the mobile app, ensuring type safety across the stack."
+        }
+      ]
+    }
+  ]
+}
