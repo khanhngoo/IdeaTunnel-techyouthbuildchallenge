@@ -13,7 +13,7 @@ import { createOrUpdateConnectionBinding } from '../../connection/ConnectionBind
 import { DEFAULT_NODE_SPACING_PX } from '../../components/constants'
 import { layoutTreeFrom } from '../../utils/autoLayout/treeLayout'
 import { Input } from '@/components/ui/input'
-import { useDemoMode } from '@/app/(main)/demo/page'
+import { useDemoMode } from '@/lib/contexts/DemoModeContext'
 
 export class RootChatNodeDefinition extends NodeDefinition<RootChatNode> {
   static type = 'rootchat' as const
@@ -38,14 +38,7 @@ export class RootChatNodeDefinition extends NodeDefinition<RootChatNode> {
   Component = function RootChatComponent({ node, shape }: NodeComponentProps<RootChatNode>) {
     const editor = (window as any).editor as Editor | undefined
     const [text, setText] = useState(node.idea || '')
-
-    // Try to access demo mode context, but don't fail if not in demo mode
-    let demoModeContext = null
-    try {
-      demoModeContext = useDemoMode()
-    } catch {
-      // Not in demo mode, context not available
-    }
+    const demoModeContext = useDemoMode()
 
     const submit = useCallback(async () => {
       if (!editor) return

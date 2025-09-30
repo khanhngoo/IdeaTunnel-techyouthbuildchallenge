@@ -12,19 +12,12 @@ import { SmartRewriteResponse } from '@/types/graph'
 import { ConnectionShape } from '../../connection/ConnectionShapeUtil'
 import { createOrUpdateConnectionBinding } from '../../connection/ConnectionBindingUtil'
 import { DEFAULT_NODE_SPACING_PX, NODE_WIDTH_PX } from '../../components/constants'
-import { useDemoMode } from '@/app/(main)/demo/page'
+import { useDemoMode } from '@/lib/contexts/DemoModeContext'
 import { layoutTreeFrom } from '../../utils/autoLayout/treeLayout'
 
 export function MessageNodeComponent({ node, shape }: NodeComponentProps<MessageNode>) {
   const editor = useEditor()
-
-  // Try to access demo mode context, but don't fail if not in demo mode
-  let demoModeContext = null
-  try {
-    demoModeContext = useDemoMode()
-  } catch {
-    // Not in demo mode, context not available
-  }
+  const demoModeContext = useDemoMode()
 
   const migratedNode: MessageNode = {
     type: 'message',
