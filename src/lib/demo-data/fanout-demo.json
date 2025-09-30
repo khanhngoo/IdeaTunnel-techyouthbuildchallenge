@@ -2,7 +2,7 @@
   "branches": [
     {
       "title": "Product Brief",
-      "file": "product_brief.md",
+      "file": "This file outlines what the software should do by describing the project's goals, target users, and key features, allowing the agent to grasp the overall business and user value of the code it is writing",
       "sections": [
         {
           "title": "Product Summary",
@@ -32,7 +32,7 @@
     },
     {
       "title": "Technical Specification",
-      "file": "technical_spec.md",
+      "file": "This file details how the software should be built, specifying architectural decisions, technology stack choices, API designs, and performance requirements that the agent must adhere to during implementation.",
       "sections": [
         {
           "title": "System Architecture Overview",
@@ -66,7 +66,7 @@
     },
     {
       "title": "Codebase Guide",
-      "file": "codebase_guide.md",
+      "file": "This file explains the existing code structure, conventions, testing protocols, and contribution process, helping the agent navigate the repository and ensure its new code is consistent and integrable",
       "sections": [
         {
           "title": "Project Structure Overview",

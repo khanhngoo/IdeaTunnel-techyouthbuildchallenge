@@ -4,7 +4,7 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { Block, Edge, ViewLayout, BlockKind, EdgeType, LayoutRecord } from '@/types/graph';
-import { localdb } from './db.dexie';
+import { localdb } from '@/lib/db/db.dexie';
 
 // State interface
 interface State {
